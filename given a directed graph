@@ -1,0 +1,40 @@
+import heapq
+import sys
+from collections import defaultdict
+
+def minCost(g_nodes, g_from, g_to, g_weight):
+    # Create set of edges in original graph
+    edges = set(zip(g_from, g_to))
+
+    # Initialize adjacency list with defaultdict
+    adj_list = defaultdict(list)
+    for i in range(len(g_from)):
+        adj_list[g_from[i] - 1].append((g_to[i] - 1, g_weight[i]))
+
+    # Add new edges to adjacency list and edges set
+    for i in range(g_nodes):
+        for j in range(g_nodes):
+            if i != j and (i+1, j+1) not in edges:
+                adj_list[i].append((j, 1))
+                edges.add((i+1, j+1))
+
+    # Initialize distances to sys.maxsize except for node 1
+    distances = [sys.maxsize] * g_nodes
+    distances[0] = 0
+
+    # Initialize priority queue with node 1
+    pq = [(0, 0)]
+
+    while pq:
+        dist, node = heapq.heappop(pq)
+        # Check if we have already visited this node
+        if dist > distances[node]:
+            continue
+
+        # Update distances to neighbors
+        for neighbor, weight in adj_list[node]:
+            new_dist = dist + weight
+            if new_dist < distances[neighbor]:
+                distances[neighbor] = new_dist
+                heapq.heappush(pq, (new_dist, neighbor))
+    return distances[-1]
